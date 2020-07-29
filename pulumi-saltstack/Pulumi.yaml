@@ -1,0 +1,4 @@
+name: pulumi-saltstack
+runtime: nodejs
+description: A minimal Packet.net TypeScript Pulumi program
+main: src/index.ts
