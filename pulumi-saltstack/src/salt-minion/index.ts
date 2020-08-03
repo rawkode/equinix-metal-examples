@@ -27,7 +27,7 @@ export const createSaltMinion = (
 
   const saltMinion = new Device(`minion-${name}`, {
     hostname: name,
-    plan: Plans.C1LargeARM,
+    plan: Plans.C2MediumX86,
     facilities: [Facilities.AMS1],
     operatingSystem: OperatingSystems.Debian9,
     billingCycle: BillingCycles.Hourly,
@@ -35,6 +35,7 @@ export const createSaltMinion = (
     userData: master.device.accessPrivateIpv4.apply((ipv4) => {
       return mustache.render(bootstrapString, { master_ip: ipv4 });
     }),
+    tags: ["role/salt-minion"],
   });
 
   // interpolate`${mustache.render(bootstrapString, {

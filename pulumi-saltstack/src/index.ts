@@ -3,11 +3,7 @@ import { getPlatform } from "./platform";
 import { createSaltMaster } from "./salt-master";
 import { createSaltMinion } from "./salt-minion";
 
-const project = new packet.Project("pulumi-saltstack-example", {
-  name: "pulumi-saltstack-example",
-});
-
-const platform = getPlatform(project);
+const platform = getPlatform();
 
 export const projectName = platform.project.name;
 

@@ -5,5 +5,3 @@ DEBIAN_FRONTEND=noninteractive apt install -y python-zmq python-systemd python-t
 cat <<EOF >/etc/salt/minion.d/salt-master.conf
 master: {{ master_ip }}
 EOF
-
-systemctl restart salt-minion

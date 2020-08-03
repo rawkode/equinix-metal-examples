@@ -19,18 +19,17 @@ export const createSaltMaster = (
   platform: Platform,
   name: string
 ): SaltMaster => {
-  // While we're not interpolating anything in this script atm,
-  // might as well leave this code in for the time being; as
-  // we probably will shortly.
   const bootstrapString = fs
     .readFileSync(path.join(__dirname, "./user-data.sh"))
     .toString();
 
-  const bootstrapScript = mustache.render(bootstrapString, {});
+  const pythonPacketMetadataGrain = fs
+    .readFileSync(path.join(__dirname, "..", "salt", "packet_metadata.py"))
+    .toString();
 
   const saltMaster = new Device(`master-${name}`, {
     hostname: name,
-    plan: Plans.C1LargeARM,
+    plan: Plans.C2MediumX86,
     facilities: [Facilities.AMS1],
     operatingSystem: OperatingSystems.Debian9,
     billingCycle: BillingCycles.Hourly,
@@ -41,7 +40,10 @@ export const createSaltMaster = (
       },
     ],
     projectId: platform.project.id,
-    userData: bootstrapScript,
+    userData: mustache.render(bootstrapString, {
+      PACKET_METADATA_PY: pythonPacketMetadataGrain,
+    }),
+    tags: ["role/salt-master"],
   });
 
   return {

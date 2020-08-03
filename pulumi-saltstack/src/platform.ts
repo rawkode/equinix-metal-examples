@@ -6,9 +6,16 @@ export type Platform = {
   config: Config;
 };
 
-export const getPlatform = (project: Project): Platform => {
+export const getPlatform = (): Platform => {
+  const config = new Config();
+
+  const project = new Project("project", {
+    name: config.require("projectName"),
+    organizationId: config.require("organizationID"),
+  });
+
   return {
     project,
-    config: new Config(),
+    config,
   };
 };
