@@ -1,0 +1,35 @@
+init:
+	#!/usr/bin/env sh
+	read -p "API Key: " -s PACKET_API_KEY && export PACKET_API_KEY=${PACKET_API_KEY}
+	clusterctl init --infrastructure packet
+
+config:
+	#!/usr/bin/env sh
+	read -p "Project ID: " PROJECT_ID && export PROJECT_ID=${PROJECT_ID}
+	source .env
+	clusterctl config cluster cilium \
+		--kubernetes-version v1.19.3 \
+		--control-plane-machine-count=3 \
+		--worker-machine-count=3 \
+		> cluster.yaml
+
+kubeconfig:
+	clusterctl get kubeconfig cilium > kubeconfig
+
+cilium:
+	helm template cilium/cilium  \
+		--version 1.8.5 \
+		--namespace cilium \
+		--set image.repository=docker.io/cilium/cilium \
+		--set global.ipam.mode=cluster-pool \
+		--set global.ipam.operator.clusterPoolIPv4PodCIDR=192.168.0.0/16 \
+		--set global.ipam.operator.clusterPoolIPv4MaskSize=23 \
+		--set global.nativeRoutingCIDR=192.168.0.0/16 \
+		--set global.endpointRoutes.enabled=true \
+		--set global.hubble.relay.enabled=true \
+		--set global.hubble.enabled=true \
+		--set global.hubble.ui.enabled=true \
+		> cilium.yaml
+
+cilium-test:
+	kubectl --kubeconfig=./kubeconfig apply -f https://raw.githubusercontent.com/cilium/cilium/v1.8.5/examples/kubernetes/connectivity-check/connectivity-check.yaml
