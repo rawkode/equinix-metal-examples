@@ -17,6 +17,13 @@ kubeconfig:
 	clusterctl get kubeconfig cilium > kubeconfig
 
 cilium:
+	# This can't be automated with Cluster API, \
+	# as --skip-phases isn't supported to disable kube-proxy \
+	# However, you can manually remove the kube-proxy \
+	# --set global.kubeProxyReplacement=strict \
+	# --set global.k8sServiceHost="External IP" \
+	# --set global.k8sServicePort="6443" \
+	
 	helm template cilium/cilium  \
 		--version 1.8.5 \
 		--namespace cilium \
@@ -28,6 +35,7 @@ cilium:
 		--set global.endpointRoutes.enabled=true \
 		--set global.hubble.relay.enabled=true \
 		--set global.hubble.enabled=true \
+		--set global.hubble.listenAddress=":4244" \
 		--set global.hubble.ui.enabled=true \
 		> cilium.yaml
 
