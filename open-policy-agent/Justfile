@@ -7,7 +7,7 @@ config:
 	#!/usr/bin/env sh
 	read -p "Project ID: " PROJECT_ID && export PROJECT_ID=${PROJECT_ID}
 	source ./env
-	clusterctl config cluster opa \
+	clusterctl config cluster shared-kubes \
 		--kubernetes-version v1.19.4 \
 		--control-plane-machine-count=3 \
 		--worker-machine-count=3 \
