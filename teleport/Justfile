@@ -1,0 +1,20 @@
+init:
+	#!/usr/bin/env sh
+	read -p "API Key: " -s PACKET_API_KEY && export PACKET_API_KEY=${PACKET_API_KEY}
+	clusterctl init --infrastructure packet
+
+config:
+	#!/usr/bin/env sh
+	read -p "Project ID: " PROJECT_ID && export PROJECT_ID=${PROJECT_ID}
+	source ./env
+	clusterctl config cluster teleport \
+		--kubernetes-version v1.19.4 \
+		--control-plane-machine-count=3 \
+		--worker-machine-count=3 \
+		> cluster.yaml
+
+apply:
+	kubectl apply -f cluster.yaml
+	
+kubeconfig:
+	clusterctl get kubeconfig teleport > kubeconfig
