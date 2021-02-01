@@ -1,0 +1,9 @@
+- GRUB_FILE=/etc/default/grub
+- GRUB_FILE_MODIFIED=0
+- if ! grep -q 'hugepagesz' $GRUB_FILE; then sed -i "s/GRUB_CMDLINE_LINUX='\(.*\)'/GRUB_CMDLINE_LINUX='\1 hugepagesz=2M'/" $GRUB_FILE; GRUB_FILE_MODIFIED=1; fi
+- echo always > /sys/kernel/mm/transparent_hugepage/enabled
+- if [ "$GRUB_FILE_MODIFIED" = "1" ]; then grub-mkconfig -o /boot/grub2/grub.cfg; fi
+- echo 512 | sudo tee /sys/kernel/mm/hugepages/hugepages-2048kB/nr_hugepages
+- echo 'vm.nr_hugepages = 512' >> /etc/sysctl.conf
+- modprobe nvme_tcp
+- echo "nvme_tcp" >> /etc/modules-load.d/modules.conf
