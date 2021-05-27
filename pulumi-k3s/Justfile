@@ -1,0 +1,5 @@
+set-pulumi-secret-metal:
+    pulumi config set equinix-metal:authToken --secret
+
+set-equinix-metal-project:
+    pulumi config set projectID

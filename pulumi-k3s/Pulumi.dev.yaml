@@ -1,0 +1,4 @@
+config:
+  equinix-metal:authToken:
+    secure: AAABAJ8AQtLpVKeUGNK9ZYCBcyvBBdV19QcpeobnEWkCO1XUqKTmhP+JsY9T44AMXJ8sycugFM0Ahtbq/3BzRw==
+  pulumi-k3s:projectID: 7158c8a9-a55e-454e-a1aa-ce5f8937ed10
