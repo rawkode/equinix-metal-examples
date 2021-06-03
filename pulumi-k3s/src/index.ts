@@ -5,21 +5,6 @@ import * as metal from "@pulumi/equinix-metal";
 const config = new pulumi.Config();
 const configAws = new pulumi.Config("aws");
 
-const k3sDatabaseCAKey = new tls.PrivateKey("k3s-db-ca-key", {
-  algorithm: "ECDSA",
-  ecdsaCurve: "P384",
-});
-
-const k3sDatabaseCACert = new tls.SelfSignedCert("k3s-db-ca-cert", {
-  keyAlgorithm: "ECDSA",
-  privateKeyPem: k3sDatabaseCAKey.privateKeyPem,
-  subjects: [
-    {
-      commonName: 
-    }
-  ]
-});
-
 const k3sControlPlane = new metal.Device("k3s-control-plane", {
   billingCycle: metal.BillingCycle.Hourly,
   hostname: "k3s-control-plane",
@@ -28,10 +13,12 @@ const k3sControlPlane = new metal.Device("k3s-control-plane", {
   projectId: config.require("projectID"),
   description: "K3s Control Plane (Don't Delete)",
   metro: "am",
-  userData: `#!/usr/bin/env sh
+  userData: pulumi.interpolate`#!/usr/bin/env sh
+# Ensure k3s API isn't available on public interface
 export PRIVATE_IPv4=$(curl -s https://metadata.platformequinix.com/metadata | jq -r '.network.addresses | map(select(.public==false and .management==true)) | first | .address')
 export INSTALL_K3S_EXEC="--bind-address $PRIVATE_IPv4 --advertise-address $PRIVATE_IPv4 --node-ip $PRIVATE_IPv4 --disable=traefik"
 
+# Configure Litestream to backup and restore to S3
 cat >/etc/litestream.yml <<END
 access-key-id: ${configAws.requireSecret("accessKey")}
 secret-access-key: ${configAws.requireSecret("secretKey")}
@@ -43,17 +30,25 @@ dbs:
 
 END
 
+# Install Litestream
 curl -o /tmp/litestream.deb -fsSL https://github.com/benbjohnson/litestream/releases/download/v0.3.4/litestream-v0.3.4-linux-amd64.deb
 dpkg --force-confold -i /tmp/litestream.deb
 
-litestream restore -if-replica-exists /var/lib/rancher/k3s/server/db/state.db
-
+# Install k3s
+export INSTALL_K3S_SKIP_START=true
 curl -sfL https://get.k3s.io | sh -
 
-systemctl daemon-reload
+# Attempt a restore, if possible; don't fail if one doesn't exist
+litestream restore -if-replica-exists /var/lib/rancher/k3s/server/db/state.db
+
+# Start k3s
+systemctl start k3s
+
+# Start Litestream
 systemctl enable litestream
 systemctl start litestream
 
+# GitOps all the rest
 kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml apply -f https://github.com/fluxcd/flux2/releases/latest/download/install.yaml
 kubectl --kubeconfig /etc/rancher/k3s/k3s.yaml apply -f https://raw.githubusercontent.com/rawkode/equinix-metal-examples/main/pulumi-k3s/opt/flux/setup.yaml
 `,
