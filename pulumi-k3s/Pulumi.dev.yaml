@@ -1,4 +1,10 @@
 config:
+  aws:accessKey:
+    secure: AAABADUJv2QfQ/3uOEbstcWi2wXWgO7Jb/BCNSWgNAmsDY8neqDX1r7TPvP5guzhBuMIHg==
+  aws:region: eu-west-2
+  aws:secretKey:
+    secure: AAABACxSa+pU6qS3uP/lkMsEItM5RdTgz4Ojbha3ZIgrm5QI2sNAMb0AUAUkvcxteNBl0qeg4evz+7Ts/eGVpvYXMpx1mCTF
   equinix-metal:authToken:
     secure: AAABAJ8AQtLpVKeUGNK9ZYCBcyvBBdV19QcpeobnEWkCO1XUqKTmhP+JsY9T44AMXJ8sycugFM0Ahtbq/3BzRw==
+  pulumi-k3s:bucketName: equinix-metal-examples-pulumi-k3s
   pulumi-k3s:projectID: 7158c8a9-a55e-454e-a1aa-ce5f8937ed10
