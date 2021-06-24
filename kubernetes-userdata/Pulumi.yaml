@@ -1,0 +1,4 @@
+name: kubernetes-userdata
+runtime: nodejs
+description: A minimal Equinix Metal TypeScript Pulumi program
+main: src/index.ts
